@@ -18,6 +18,7 @@ public class TTT : MonoBehaviour
 
     PlayerOption currentPlayer = PlayerOption.X;
     Cell[,] cells;
+    int turn;
 
     // Start is called before the first frame update
     void Start()
@@ -65,6 +66,7 @@ public class TTT : MonoBehaviour
     {
         // increment player, if it goes over player 2, loop back to player 1
         currentPlayer += 1;
+        turn++;
         if ((int)currentPlayer > 2)
             currentPlayer = PlayerOption.X;
     }
@@ -169,6 +171,53 @@ public class TTT : MonoBehaviour
         // the bot will only function on a standard 3x3 grid
         if (Rows != 3 || Columns != 3) return;
 
+        // the first two turns are very unqiue
+        if (turn < 2) { DoFirstTurn(); return; }
+    }
 
+    private void DoFirstTurn()
+    {
+        if (turn == 0)
+        {
+            int randValue = Random.Range(0, 4);
+            switch (randValue)
+            {
+                case 0:
+                    ChooseSpace(0, 0);
+                    break;
+                case 1:
+                    ChooseSpace(2, 0);
+                    break;
+                case 2:
+                    ChooseSpace(0, 2);
+                    break;
+                case 3:
+                    ChooseSpace(2, 2);
+                    break;
+            }
+        }
+        else
+        {
+            if (cells[1, 1].current == PlayerOption.NONE) ChooseSpace(1, 1);
+            else
+            {
+                int randValue = Random.Range(0, 4);
+                switch (randValue)
+                {
+                    case 0:
+                        ChooseSpace(0, 0);
+                        break;
+                    case 1:
+                        ChooseSpace(2, 0);
+                        break;
+                    case 2:
+                        ChooseSpace(0, 2);
+                        break;
+                    case 3:
+                        ChooseSpace(2, 2);
+                        break;
+                }
+            }
+        }
     }
 }
