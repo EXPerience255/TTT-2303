@@ -172,7 +172,13 @@ public class TTT : MonoBehaviour
         if (Rows != 3 || Columns != 3) return;
 
         // the first two turns are very unqiue
-        if (turn < 2) { DoFirstTurn(); return; }
+        if (turn < 2) { Debug.Log("Doing special turn " + turn); DoFirstTurn(); return; }
+
+        // try to win
+        int turnType = GetWinTurn();
+        Debug.Log("Win turn type " + turnType);
+        if (turnType != -1) DoWinOrBlock(turnType);
+        Debug.Log("Cannot win. Continuing...");
     }
 
     private void DoFirstTurn()
@@ -217,6 +223,99 @@ public class TTT : MonoBehaviour
                         ChooseSpace(2, 2);
                         break;
                 }
+            }
+        }
+    }
+
+    private int GetWinTurn()
+    {
+        int sum;
+
+        // check rows
+        for (int i = 0; i < Rows; i++)
+        {
+            sum = 0;
+            for (int j = 0; j < Columns; j++)
+            {
+                var value = 0;
+                if (cells[j, i].current == currentPlayer)
+                    value = 1;
+                else if (cells[j, i].current != currentPlayer && cells[j, i].current != PlayerOption.NONE)
+                    value = -1;
+
+                sum += value;
+            }
+
+            if (sum == 2) return i;
+        }
+
+        // check columns
+        for (int j = 0; j < Columns; j++)
+        {
+            sum = 0;
+            for (int i = 0; i < Rows; i++)
+            {
+                var value = 0;
+                if (cells[j, i].current == currentPlayer)
+                    value = 1;
+                else if (cells[j, i].current != currentPlayer && cells[j, i].current != PlayerOption.NONE)
+                    value = -1;
+
+                sum += value;
+            }
+
+            if (sum == 2) return j + 3;
+        }
+
+        // check diagonals
+        // top left to bottom right
+        sum = 0;
+        for (int i = 0; i < Rows; i++)
+        {
+            int value = 0;
+            if (cells[i, i].current == currentPlayer)
+                value = 1;
+            else if (cells[i, i].current != currentPlayer && cells[i, i].current != PlayerOption.NONE)
+                value = -1;
+
+            sum += value;
+        }
+
+        if (sum == 3) return 6;
+
+        // top right to bottom left
+        sum = 0;
+        for (int i = 0; i < Rows; i++)
+        {
+            int value = 0;
+
+            if (cells[Columns - 1 - i, i].current == currentPlayer)
+                value = 1;
+            else if (cells[Columns - 1 - i, i].current != currentPlayer && cells[Columns - 1 - i, i].current != PlayerOption.NONE)
+                value = -1;
+
+            sum += value;
+        }
+
+        if (sum == 3) return 7;
+
+        return -1;
+    }
+
+    private void DoWinOrBlock(int turnType)
+    {
+        if (turnType < 3)
+        {
+            for (int i = 0; i < Columns; i++)
+            {
+                if (cells[i, turnType].current == PlayerOption.NONE) ChooseSpace(i, turnType);
+            }
+        }
+        else if (turnType < 6)
+        {
+            for (int i = 0; i < Rows; i++)
+            {
+                if (cells[turnType - 3, i].current == PlayerOption.NONE) ChooseSpace(turnType - 3, i);
             }
         }
     }
