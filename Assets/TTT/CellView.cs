@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -22,6 +20,6 @@ public class CellView : MonoBehaviour
 
     public void Click()
     {
-        FindObjectOfType<TTT>().ChooseSpace(col, row);
+        FindFirstObjectByType<TTT>().ChooseSpace(col, row);
     }
 }

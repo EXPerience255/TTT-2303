@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public enum PlayerOption
@@ -171,27 +169,38 @@ public class TTT : MonoBehaviour
         // the bot will only function on a standard 3x3 grid
         if (Rows != 3 || Columns != 3) return;
 
+        Debug.Log("--- TURN " + turn + " ---");
+
         // the first two turns are very unqiue
         if (turn < 2) { Debug.Log("Doing special turn " + turn); DoFirstTurn(); return; }
 
         // try to win
         int turnType = GetTurnType(false);
-        Debug.Log("Win turn type " + turnType);
-        if (turnType != -1) { DoWinOrBlock(turnType); return; }
-        Debug.Log("Cannot win. Continuing...");
+        if (turnType != -1) { Debug.Log("Win turn type " + turnType); DoWinOrBlock(turnType); return; }
+        Debug.Log("Unable to win. Continuing...");
 
         // try to block
         turnType = GetTurnType(true);
-        Debug.Log("Block turn type " + turnType);
-        if (turnType != -1) { DoWinOrBlock(turnType); return; }
+        if (turnType != -1) { Debug.Log("Block turn type " + turnType); DoWinOrBlock(turnType); return; }
         Debug.Log("No block needed. Continuing...");
+
+        // take center if it is still open
+        if (cells[1, 1].current == PlayerOption.NONE) { Debug.Log("Took center"); ChooseSpace(1, 1); return; }
+
+        // extend corner
+        if (ExtendCorner()) { Debug.Log("Extended from a corner"); return; }
+        Debug.Log("Could not extend from corner. Continuing...");
+
+        // if all else fails, pick randomly
+        PickRandomFromRemaining();
+        Debug.Log("Picked a random cell");
     }
 
     private void DoFirstTurn()
     {
+        int randValue = Random.Range(0, 4);
         if (turn == 0)
         {
-            int randValue = Random.Range(0, 4);
             switch (randValue)
             {
                 case 0:
@@ -213,7 +222,6 @@ public class TTT : MonoBehaviour
             if (cells[1, 1].current == PlayerOption.NONE) ChooseSpace(1, 1);
             else
             {
-                int randValue = Random.Range(0, 4);
                 switch (randValue)
                 {
                     case 0:
@@ -337,5 +345,50 @@ public class TTT : MonoBehaviour
                 if (cells[Columns - 1 - i, i].current == PlayerOption.NONE) ChooseSpace(Columns - 1 - i, i);
             }
         }
+    }
+
+    private bool ExtendCorner()
+    {
+        int randValue = Random.Range(0, 2);
+
+        if (cells[0, 0].current == currentPlayer)
+        {
+            if (cells[1, 0].current == PlayerOption.NONE) { ChooseSpace(1, 0); return true; }
+            else if (cells[0, 1].current == PlayerOption.NONE) { ChooseSpace(0, 1); return true; }
+        }
+        else if (cells[2, 0].current == currentPlayer)
+        {
+            if (cells[2, 1].current == PlayerOption.NONE) { ChooseSpace(2, 1); return true; }
+            else if (cells[1, 0].current == PlayerOption.NONE) { ChooseSpace(1, 0); return true; }
+        }
+        else if (cells[2, 2].current == currentPlayer)
+        {
+            if (cells[1, 2].current == PlayerOption.NONE) { ChooseSpace(1, 2); return true; }
+            else if (cells[2, 1].current == PlayerOption.NONE) { ChooseSpace(2, 1); return true; }
+        }
+        else if (cells[0, 2].current == currentPlayer)
+        {
+            if (cells[0, 1].current == PlayerOption.NONE) { ChooseSpace(0, 1); return true; }
+            else if (cells[1, 2].current == PlayerOption.NONE) { ChooseSpace(1, 2); return true; }
+        }
+
+        return false;
+    }
+
+    private void PickRandomFromRemaining()
+    {
+        List<int> slotsOpen = new List<int>();
+
+        for (int i = 0; i < Rows; i++)
+        {
+            for (int j = 0; j < Columns; j++)
+            {
+                if (cells[j, i].current == PlayerOption.NONE) slotsOpen.Add(i * 3 + j);
+            }
+        }
+
+        int randValue = Random.Range(0, slotsOpen.Count);
+        int slotValue = slotsOpen[randValue];
+        ChooseSpace(slotValue % 3, (int)Mathf.Floor(slotValue / 3));
     }
 }
