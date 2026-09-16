@@ -175,10 +175,16 @@ public class TTT : MonoBehaviour
         if (turn < 2) { Debug.Log("Doing special turn " + turn); DoFirstTurn(); return; }
 
         // try to win
-        int turnType = GetWinTurn();
+        int turnType = GetTurnType(false);
         Debug.Log("Win turn type " + turnType);
         if (turnType != -1) { DoWinOrBlock(turnType); return; }
         Debug.Log("Cannot win. Continuing...");
+
+        // try to block
+        turnType = GetTurnType(true);
+        Debug.Log("Block turn type " + turnType);
+        if (turnType != -1) { DoWinOrBlock(turnType); return; }
+        Debug.Log("No block needed. Continuing...");
     }
 
     private void DoFirstTurn()
@@ -227,7 +233,7 @@ public class TTT : MonoBehaviour
         }
     }
 
-    private int GetWinTurn()
+    private int GetTurnType(bool isBlock)
     {
         int sum;
 
@@ -245,8 +251,7 @@ public class TTT : MonoBehaviour
 
                 sum += value;
             }
-
-            if (sum == 2) return i;
+            if ((sum == 2 && !isBlock) || (sum == -2 && isBlock)) return i;
         }
 
         // check columns
@@ -264,7 +269,7 @@ public class TTT : MonoBehaviour
                 sum += value;
             }
 
-            if (sum == 2) return j + 3;
+            if ((sum == 2 && !isBlock) || (sum == -2 && isBlock)) return j + 3;
         }
 
         // check diagonals
@@ -281,7 +286,7 @@ public class TTT : MonoBehaviour
             sum += value;
         }
 
-        if (sum == 2) return 6;
+        if ((sum == 2 && !isBlock) || (sum == -2 && isBlock)) return 6;
 
         // top right to bottom left
         sum = 0;
@@ -297,7 +302,7 @@ public class TTT : MonoBehaviour
             sum += value;
         }
 
-        if (sum == 2) return 7;
+        if ((sum == 2 && !isBlock) || (sum == -2 && isBlock)) return 7;
 
         return -1;
     }
@@ -329,7 +334,7 @@ public class TTT : MonoBehaviour
         {
             for (int i = 0; i < Rows; i++)
             {
-                if (cells[Columns - 1 - i, i].current == PlayerOption.NONE) ChooseSpace(i, i);
+                if (cells[Columns - 1 - i, i].current == PlayerOption.NONE) ChooseSpace(Columns - 1 - i, i);
             }
         }
     }
