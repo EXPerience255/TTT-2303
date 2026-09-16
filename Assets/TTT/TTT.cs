@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum PlayerOption
@@ -33,11 +34,6 @@ public class TTT : MonoBehaviour
                 cells[j, i].current = PlayerOption.NONE;
             }
         }
-    }
-
-    public void MakeOptimalMove()
-    {
-
     }
 
     public void ChooseSpace(int column, int row)
@@ -162,5 +158,17 @@ public class TTT : MonoBehaviour
             return PlayerOption.O;
 
         return PlayerOption.NONE;
+    }
+
+    // bot stuff
+    public void MakeOptimalMove()
+    {
+        // ignore everything if the game has ended
+        if (GetWinner() != PlayerOption.NONE) return;
+
+        // the bot will only function on a standard 3x3 grid
+        if (Rows != 3 || Columns != 3) return;
+
+
     }
 }
