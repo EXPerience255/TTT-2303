@@ -177,7 +177,7 @@ public class TTT : MonoBehaviour
         // try to win
         int turnType = GetWinTurn();
         Debug.Log("Win turn type " + turnType);
-        if (turnType != -1) DoWinOrBlock(turnType);
+        if (turnType != -1) { DoWinOrBlock(turnType); return; }
         Debug.Log("Cannot win. Continuing...");
     }
 
@@ -281,7 +281,7 @@ public class TTT : MonoBehaviour
             sum += value;
         }
 
-        if (sum == 3) return 6;
+        if (sum == 2) return 6;
 
         // top right to bottom left
         sum = 0;
@@ -297,7 +297,7 @@ public class TTT : MonoBehaviour
             sum += value;
         }
 
-        if (sum == 3) return 7;
+        if (sum == 2) return 7;
 
         return -1;
     }
@@ -316,6 +316,20 @@ public class TTT : MonoBehaviour
             for (int i = 0; i < Rows; i++)
             {
                 if (cells[turnType - 3, i].current == PlayerOption.NONE) ChooseSpace(turnType - 3, i);
+            }
+        }
+        else if (turnType == 6)
+        {
+            for (int i = 0; i < Rows; i++)
+            {
+                if (cells[i, i].current == PlayerOption.NONE) ChooseSpace(i, i);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < Rows; i++)
+            {
+                if (cells[Columns - 1 - i, i].current == PlayerOption.NONE) ChooseSpace(i, i);
             }
         }
     }
